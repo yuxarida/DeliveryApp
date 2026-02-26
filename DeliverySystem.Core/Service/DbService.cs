@@ -1,14 +1,17 @@
-﻿using System;
-using System.Data;
+﻿using DeliverySystem.Core.Models;
 using Microsoft.Data.SqlClient;
-using DeliverySystem.Core.Models;
+using System.Data;
 
 namespace DeliverySystem.Core.Services
 {
     public class DbService
     {
-        // Рядок підключення (перевір назву сервера!)
-        private readonly string _connString = @"Server=.\SQLEXPRESS;Database=DeliveryService;Integrated Security=True;TrustServerCertificate=True;";
+        private readonly string _connString;
+
+        public DbService(IConfiguration config)
+        {
+            _connString = config.GetConnectionString("DeliveryDb");
+        }
 
         // 1. Логін
         public User Login(string username, string password)
@@ -153,5 +156,22 @@ namespace DeliverySystem.Core.Services
                 }
             }
         }
+
+        public bool CheckUser(string username, string password)
+        {
+            using (var con = new SqlConnection(_connString))
+            {
+                con.Open();
+                string query = "SELECT COUNT(1) FROM AppUsers WHERE Username=@u AND Password=@p";
+                using (var cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@u", username);
+                    cmd.Parameters.AddWithValue("@p", password);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result) > 0;
+                }
+            }
+        }
+
     }
 }

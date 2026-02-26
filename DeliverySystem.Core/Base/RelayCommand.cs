@@ -2,7 +2,7 @@
 
 namespace DeliverySystem.Core.Base
 {
-    public class RelayCommand : ICommand
+    public class RelayCommand
     {
         private readonly Action<object> _execute;
         private readonly Predicate<object> _canExecute;
@@ -11,12 +11,6 @@ namespace DeliverySystem.Core.Base
         {
             _execute = execute;
             _canExecute = canExecute;
-        }
-
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
         }
 
         public bool CanExecute(object parameter) => _canExecute == null || _canExecute(parameter);
